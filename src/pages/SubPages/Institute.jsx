@@ -1,18 +1,22 @@
 import { Search } from "lucide-react";
 import { AiFillEdit } from "react-icons/ai";
+import { motion, AnimatePresence } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import {
   closeAddInstitue,
   openAddInstitute,
 } from "../../redux/Slices/addInstituteSlice";
+
 const Institute = () => {
   let responseInstitute = [];
   const navigate = useNavigate();
   const [allInstitutes, setAllInstitutes] = useState([]);
   const [institutes, setInstitutes] = useState([]);
+  const [searchValue, setSearchValue] = useState("");
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   const fecthInstitute = async () => {
@@ -21,7 +25,6 @@ const Institute = () => {
       setLoading(true);
       const response = await axios(url);
       responseInstitute = response.data.institutes;
-      console.log(responseInstitute);
       if (response.status === 200) {
         setAllInstitutes(response.data.institutes);
         setInstitutes(response.data.institutes);
@@ -32,69 +35,29 @@ const Institute = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
-    const date = new Date();
-    date.setDate(date.getDate() + 30);
-    date.setHours(12, 0, 0, 0);
-    console.log(
-      date.toLocaleDateString("en-IN", {
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      }),
-    );
     fecthInstitute();
   }, []);
-  const [searchValue, setSearchValue] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const instituteStatusUpdate = async (e) => {
     const status = e.target.value;
     const id = e.target.id;
-    console.log(e.target.value);
     const url = `${import.meta.env.VITE_REACT_API}institute/updateInstitute/${id}`;
-    console.log(url);
-    const response = await axios.put(url);
-    console.log(response);
-    console.log(response.status);
-    if (response.status === 200) {
-      fecthInstitute();
-    }
     try {
+      const response = await axios.put(url);
+      if (response.status === 200) {
+        fecthInstitute();
+      }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const openInstitute = (e) => {
-    e.preventDefault();
-  };
-
   const searchStudent = (e) => {
-    if (e === "active") {
+    if (e === "active" || e === "inactive" || e === "pending") {
       const filtered = allInstitutes.filter((inst) => inst.status === e);
-
-      if (filtered.length === 0) {
-        setInstitutes(allInstitutes);
-      } else {
-        setInstitutes(filtered);
-      }
-    } else if (e === "inactive") {
-      const filtered = allInstitutes.filter((inst) => inst.status === e);
-
-      if (filtered.length === 0) {
-        setInstitutes(allInstitutes);
-      } else {
-        setInstitutes(filtered);
-      }
-    } else if (e === "pending") {
-      const filtered = allInstitutes.filter((inst) => inst.status === e);
-
-      if (filtered.length === 0) {
-        setInstitutes(allInstitutes);
-      } else {
-        setInstitutes(filtered);
-      }
+      setInstitutes(filtered.length === 0 ? allInstitutes : filtered);
     } else {
       const value = e.target.value.toLowerCase();
       setSearchValue(value);
@@ -111,148 +74,188 @@ const Institute = () => {
           inst.instituteId?.toString().includes(value)
         );
       });
-      if (filtered.length === 0) {
-        setInstitutes(allInstitutes);
-      } else {
-        setInstitutes(filtered);
-      }
+      setInstitutes(filtered.length === 0 ? allInstitutes : filtered);
     }
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "active":
+        return "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700";
+      case "inactive":
+        return "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-700";
+      case "pending":
+        return "bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-700";
+      default:
+        return "bg-slate-100 dark:bg-slate-700";
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05, delayChildren: 0.1 },
+    },
+  };
+
+  const rowVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.3 } },
+    exit: { opacity: 0, x: 20, transition: { duration: 0.2 } },
+  };
+
   return (
-    <div className="w-full flex flex-col lg:gap-3  h-full dark:bg-gray-900 p-2 lg:p-4">
-      <div className="w-full flex flex-row lg:gap-3 gap-2 items-center">
-        <div className="w-full relative flex-1">
+    <motion.div
+      className="w-full flex flex-col lg:gap-4 gap-3 h-full dark:bg-gray-900 p-2 lg:p-6 bg-slate-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        className="w-full flex flex-col sm:flex-row lg:gap-4 gap-3 items-center"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="w-full sm:flex-1 relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
+          <motion.input
             value={searchValue}
             type="text"
-            placeholder="Search Insitute"
-            name="searchbox"
+            placeholder="Search institute name, ID or phone"
             onChange={searchStudent}
-            className="
-              w-full py-2 lg:py-3 pl-10 pr-10
-              bg-slate-100 dark:bg-slate-800
-              border border-slate-200 dark:border-slate-700
-              lg:rounded-xl rounded text-sm lg:text-base
-              text-slate-800 dark:text-white
-              placeholder-slate-500
-              focus:outline-none focus:ring-2 focus:ring-purple-400
-              transition-all
-            "
+            className="w-full py-2 lg:py-3 pl-10 pr-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 lg:rounded-xl rounded-lg text-sm lg:text-base text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
+            whileFocus={{ scale: 1.01 }}
           />
         </div>
-        <button
+        <motion.button
           onClick={() => dispatch(openAddInstitute())}
-          className="bg-[#24324F] text-white duration-300 transition-all ease-in-out lg:rounded-lg rounded-md hover:shadow-lg text-sm lg:text-base lg:px-3 px-2 h-full font-semibold cursor-pointer active:scale-95 hover:bg-[#19202e]"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold text-sm lg:text-base px-4 lg:px-6 py-2 lg:py-3 rounded-lg lg:rounded-xl hover:shadow-lg transition-all active:scale-95 whitespace-nowrap"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
-          Add Institute
-        </button>
-      </div>
-      <div className="w-full  h-full   rounded-md mt-3">
-        <table className="flex flex-col gap-2 justify-between   ">
-          <thead className="bg-slate-100  lg:rounded-md rounded-sm dark:bg-slate-800 border dark:border-slate-700 border-slate-200 dark:text-white overflow-hidden">
-            <tr className="flex justify-between items-center">
-              <td className=" flex-1 text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center">
-                Id
-              </td>
-              <td className="flex-2  text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center">
-                Institute Name
-              </td>
-              <td className="flex-1  text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center hidden lg:inline">
-                Address
-              </td>
-              <td className="flex-1  text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center">
-                Phone
-              </td>
-              <td className="flex-1  text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center">
-                Status
-              </td>
-              <td className="flex-1  text-gray-400 text-xs p-1 lg:p-2 lg:text-base text-center">
-                Action
-              </td>
-            </tr>
-          </thead>
-          <tbody className="bg-slate-50 text-center w-full overflow-y-scroll demo rounded">
-            {loading ? (
-              <tr className="flex justify-center items-center w-full ">
-                <td className="w-full flex items-center justify-center ">
-                  <div className="flex-col gap-4 w-full flex items-center justify-center  dark:bg-gray-800">
-                    <div className="w-10 h-10 border-4 border-transparent text-blue-400 text-4xl animate-spin flex items-center justify-center border-t-blue-400 rounded-full dark:bg-gray-800">
-                      <div className="w-8 h-8 border-4 border-transparent text-red-400 text-2xl animate-spin flex items-center justify-center border-t-red-400 rounded-full bg-transparent dark:bg-gray-800"></div>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            ) : institutes?.length > 0 ? (
-              institutes.map((inst) => {
-                return (
-                  <tr
-                    key={inst.instituteId}
-                    onClick={openInstitute}
-                    className="flex  items-center gap-2 bg-white dark:bg-slate-800 dark:text-white border-b dark:border-slate-700 border-slate-200 p-1 py-2 lg:py-1"
-                  >
-                    <td className=" flex-1 text-xs  lg:p-2 lg:text-base text-center">
-                      {inst.instituteId}
-                    </td>
-                    <td className="flex-2 text-left truncate text-xs  lg:p-2 lg:text-base">
-                      {inst.name}
-                    </td>
-                    <td className="flex-1 truncate  text-xs  lg:p-2 lg:text-base text-center hidden lg:inline">
-                      {inst.address}
-                    </td>
-                    <td className="flex-1  text-xs  lg:p-2 lg:text-base text-center  text-ellipsis truncate">
-                      {inst.contact}
-                    </td>
-                    <td
-                      id={inst.status}
-                      className={`flex-1 text-xs lg:p-2 lg:text-base text-center font-bold`}
-                    >
-                      <select
-                        id={inst._id}
-                        onChange={instituteStatusUpdate}
-                        className={`${inst.status === "active" ? "bg-green-400" : inst.status === "inactive" ? "bg-red-400" : "hover:border-[#24324F] bg-[#24324F]"}    rounded p-1 font-medium text-white outline-0 border-0`}
-                        value={
-                          inst.status === "pending" ? "pending" : inst.status
-                        }
-                      >
-                        {inst.status}
-                        <option
-                          value="pending"
-                          className={`${inst.status !== "pending" ? "visible" : "hidden"} outline-0 border-0 rounded-md`}
-                        >
-                          Pending
-                        </option>
-                        <option
-                          className={`${inst.status !== "active" ? "visible" : "hidden"} outline-0 border-0 rounded-md`}
-                          value="active"
-                        >
-                          Active
-                        </option>
-                        <option
-                          className={`${inst.status !== "inactive" ? "visible" : "hidden"} outline-0 border-0 rounded-md`}
-                          value="inactive"
-                        >
-                          Inactive
-                        </option>
-                      </select>
-                    </td>
+          + Add Institute
+        </motion.button>
+      </motion.div>
 
-                    <td className="flex-1   text-xs  lg:p-2 lg:text-base text-center flex items-center justify-center gap-3">
-                      <AiFillEdit className="lg:text-2xl text-base hover:text-slate-500 duration-300 ease-in-out transition-colors cursor-pointer" />
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr className="flex justify-center w-full dark:bg-slate-700 dark:text-white ">
-                <td className="p-2">No Institute Registered</td>
+      <motion.div
+        className="w-full h-full rounded-xl lg:rounded-2xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0">
+              <tr className="divide-x divide-slate-200 dark:divide-slate-700">
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  ID
+                </th>
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  Name
+                </th>
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider hidden lg:table-cell">
+                  Address
+                </th>
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-left text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  Phone
+                </th>
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-4 lg:px-6 py-3 lg:py-4 text-center text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider">
+                  Action
+                </th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            </thead>
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+              <AnimatePresence mode="wait">
+                {loading ? (
+                  <motion.tr
+                    className="bg-white dark:bg-slate-800"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <td colSpan="6" className="px-6 py-12 text-center">
+                      <motion.div className="flex justify-center items-center gap-3">
+                        <motion.div
+                          className="w-8 h-8 border-3 border-slate-200 dark:border-slate-600 border-t-blue-500 rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        />
+                        <span className="text-slate-600 dark:text-slate-400 font-medium">Loading institutes...</span>
+                      </motion.div>
+                    </td>
+                  </motion.tr>
+                ) : institutes?.length > 0 ? (
+                  institutes.map((inst, idx) => (
+                    <motion.tr
+                      key={inst.instituteId}
+                      variants={rowVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                      transition={{ delay: idx * 0.05 }}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors divide-x divide-slate-200 dark:divide-slate-700"
+                    >
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-slate-700 dark:text-slate-300 font-medium">
+                        {inst.instituteId}
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-slate-900 dark:text-white font-semibold truncate">
+                        {inst.name}
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-slate-700 dark:text-slate-300 hidden lg:table-cell truncate">
+                        {inst.address}
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-xs lg:text-sm text-slate-700 dark:text-slate-300">
+                        {inst.contact}
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-center">
+                        <motion.select
+                          id={inst._id}
+                          onChange={instituteStatusUpdate}
+                          className={`${getStatusColor(inst.status)} text-xs lg:text-sm font-semibold px-3 py-1 rounded-lg outline-none cursor-pointer transition-all hover:shadow-md`}
+                          value={inst.status}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="active">Active</option>
+                          <option value="inactive">Inactive</option>
+                        </motion.select>
+                      </td>
+                      <td className="px-4 lg:px-6 py-3 lg:py-4 text-center">
+                        <motion.button
+                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          whileHover={{ scale: 1.1 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <AiFillEdit className="text-lg lg:text-xl" />
+                        </motion.button>
+                      </td>
+                    </motion.tr>
+                  ))
+                ) : (
+                  <motion.tr
+                    className="bg-white dark:bg-slate-800"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    <td colSpan="6" className="px-6 py-12 text-center">
+                      <p className="text-slate-600 dark:text-slate-400 font-medium">
+                        No Institute Registered
+                      </p>
+                    </td>
+                  </motion.tr>
+                )}
+              </AnimatePresence>
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

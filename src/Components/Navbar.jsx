@@ -1,5 +1,6 @@
 import { Bell, Filter, Menu, Plus, Search, Settings, Sun } from "lucide-react";
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { sidenavtoggle } from "../redux/Slices/toggleslice";
 import { searchboxclose, searchboxopen } from "../redux/Slices/searchslice";
@@ -10,104 +11,14 @@ import { toggletheme } from "../redux/Slices/themeslice";
 import { logout } from "../redux/Slices/user";
 import { useNavigate } from "react-router-dom";
 import { RiMessage2Line } from "react-icons/ri";
+
 function Navbar() {
   const [notification, setNotification] = useState([
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
-    {
-      title: "Institute",
-      body: "hi from body",
-    },
+    { title: "New Student", body: "John Doe enrolled" },
+    { title: "Payment", body: "Payment of $500 received" },
+    { title: "Update", body: "System update completed" },
+    { title: "Alert", body: "New inquiry received" },
+    { title: "Success", body: "Course published" },
   ]);
   const [notificationDropDown, setNotificationDropDown] = useState(false);
   const [loggingOut, setIsloggingOut] = useState(false);
@@ -116,6 +27,7 @@ function Navbar() {
   const user = useSelector((state) => state.User);
   const dispatch = useDispatch();
   const search = useSelector((state) => state.search);
+
   const searchboxhandle = (e) => {
     e.preventDefault();
     if (e.target.value !== "") {
@@ -124,6 +36,7 @@ function Navbar() {
       dispatch(searchboxclose());
     }
   };
+
   const handleLogout = () => {
     setIsloggingOut(true);
     setTimeout(() => {
@@ -132,137 +45,186 @@ function Navbar() {
     }, 2000);
   };
 
+  const notificationVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.15 } },
+  };
+
+  const profileVariants = {
+    hidden: { opacity: 0, y: -10, scale: 0.95 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.2 } },
+    exit: { opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.15 } },
+  };
+
+  const menuItemVariants = {
+    hidden: { opacity: 0, x: -10 },
+    visible: (custom) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: custom * 0.05, duration: 0.2 },
+    }),
+  };
+
   return (
-    <div className="bg-white/80  dark:bg-gray-900 backdrop-blur-xl border-b flex  items-center  h-full w-full border-slate-200/50 dark:border-slate-700/50 px-2 lg:px-6 py-2">
-      <div className="flex items-center  w-full h-full">
-        <div className="flex  lg:mx-3 items-center justify-between w-full">
-          <div className="flex items-center ">
-            <button
-              onClick={() => dispatch(sidenavtoggle())}
-              className="lg:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            >
-              <Menu className="lg:w-5 h-5" />
-            </button>
+    <motion.div
+      className="bg-white/80 dark:bg-gray-900 backdrop-blur-md border-b border-slate-200/50 dark:border-slate-700/50 flex items-center h-full w-full px-4 lg:px-6 py-3 shadow-sm"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-center w-full h-full">
+        <div className="flex lg:mx-3 items-center justify-between w-full">
+          {/* Menu Toggle */}
+          <motion.button
+            onClick={() => dispatch(sidenavtoggle())}
+            className="lg:p-2 p-1 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Menu className="lg:w-5 lg:h-5 w-4 h-4" />
+          </motion.button>
+
+          {/* Search Bar */}
+          <div className="hidden lg:flex flex-1 max-w-md  relative">
+  
+            {search.isSearch && (
+              <div className=" w-full ">
+                <SearchBox />
+              </div>
+            )}
           </div>
-          <div className="hidden lg:flex flex-1 max-w-md mx-3 lg:mx-8 relative">
-            <div className="relative w-full">
-              <Search className="lg:w-4 lg:h-4 w-3 h-3 absolute left-1 lg:left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
-              <input
-                onChange={searchboxhandle}
-                type="text"
-                placeholder="Search anything"
-                name="searchbox"
-                className="w-full py-1 text-sm  lg:py-3 pl-5 lg:pl-10 bg-slate-100 dark:bg-slate-800 border border-slate-200  dark:border-slate-700 lg:rounded-xl rounded-md text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-            <div
-              className={`w-full lg:h-48 ${search.isSearch ? "hidden" : "flex"}  absolute z-100`}
-            >
-              <SearchBox />
-            </div>
-          </div>
-          <div className="flex items-center space-x-3 justify-center gap-1  ">
-            <button
+
+          {/* Right Actions */}
+          <div className="flex items-center space-x-2 lg:space-x-3 justify-end">
+            {/* Theme Toggle */}
+            <motion.button
               onClick={() => dispatch(toggletheme())}
-              className="lg:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              className="p-1 lg:p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <AiOutlineSun className="lg:w-5 h-5" />
-            </button>
-            <button
-              onClick={() => {
-                setNotificationDropDown(!notificationDropDown);
-                setIsProfileDrowdown(false);
-              }}
-              className="relative  p-1 lg:p-2 m-0 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors "
-            >
-              <Bell className=" w-3.5 h-3.5 lg:w-5 lg:h-5" />
-              <span className="absolute -top-1 right-1 lg:right-2 lg:-top-1 w-3 h-3 lg:w-5 lg:h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                3
-              </span>
-              <div
-                className={`absolute top-10 -left-30 p-1 w-60 h-40 bg-white dark:bg-gray-800 
-                            flex flex-col gap-2 rounded-lg border border-slate-200 dark:border-slate-700
-                            transition-all duration-200 ease-in-out
-                            ${
-                              notificationDropDown
-                                ? "opacity-100 translate-y-2 pointer-events-auto"
-                                : "opacity-0 translate-y-0 pointer-events-none"
-                            }
-                            `}
+              <AiOutlineSun className="w-5 h-5" />
+            </motion.button>
+
+            {/* Notifications */}
+            <div className="relative">
+              <motion.button
+                onClick={() => {
+                  setNotificationDropDown(!notificationDropDown);
+                  setIsProfileDrowdown(false);
+                }}
+                className="relative p-1 lg:p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <h2 className="flex items-center lg:font-bold lg:text-base text-sm   justify-between p-1 bg-white dark:bg-slate-800 w-full  ">
-                  Notifications <RiMessage2Line className="text-sm" />
-                </h2>
-                <ul className=" w-full flex flex-col rounded overflow-y-scroll demo h-full ">
-                  {notification.length > 0 ? (
-                    notification.map((noti) => {
-                      return (
-                        <li
-                          id={noti.body}
-                          className=" dark:bg-slate-800 flex border-b py-1 px-2 border-slate-300 dark:border-slate-700  items-center justify-between "
-                        >
-                          <div className=" flex flex-col items-start ">
-                            <p className="text-sm p-0">{noti.title}</p>
-                            <p className="text-xs   text-slate-600">
-                              {noti.body}
-                            </p>
-                          </div>
-                          <div className="h-2 w-2 bg-red-600 rounded-full"></div>
-                        </li>
-                      );
-                    })
-                  ) : (
-                    <li className="lg:text-sm text-xs p-2 ">No Notification</li>
-                  )}
-                </ul>
-              </div>
-            </button>
-            <div
-              onClick={() => {
-                setIsProfileDrowdown(!isProfileDropdown);
-                setNotificationDropDown(false);
-              }}
-              className="flex dropdown  w-full items-center lg:pl-3 lg:gap-3 gap-2 border-l border-slate-200 dark:border-slate-700 cursor-pointer relative "
-            >
-              <img
-                src="jv"
-                alt="User"
-                className="w-6 h-6 lg:w-8 lg:h-8 rounded-full  "
-              />
-              <div className=" flex dark:text-white font-semibold lg:gap-2 items-center text-sm lg:text-md">
-                <p>{user.currentUser?.Name}</p>
-                <FaAngleDown className="text-sm" />
-              </div>
-              <div
-                className={`absolute top-10 -left-40 w-60 h-auto bg-white dark:bg-gray-800 
-                              flex flex-col gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700
-                              transition-all duration-200 ease-in-out
-                              ${
-                                isProfileDropdown
-                                  ? "opacity-100 translate-y-2 pointer-events-auto"
-                                  : "opacity-0 translate-y-0 pointer-events-none"
-                              }
-                              `}
-              >
-                <li
-                  onClick={handleLogout}
-                  className="text-red-600 p-1 duration-300 ease-in-out transition-colors list-none hover:bg-slate-100  dark:hover:bg-slate-400 rounded-sm"
+                <Bell className="w-4 h-4 lg:w-5 lg:h-5" />
+                <motion.span
+                  className="absolute -top-1 right-0 lg:-top-1 lg:right-1 w-4 h-4 lg:w-5 lg:h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  {loggingOut ? (
-                    <div className="flex justify-center items-center gap-3 text-gray-200">
-                      <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
-                      Logging Out...
+                  {notification.length}
+                </motion.span>
+              </motion.button>
+
+              <AnimatePresence>
+                {notificationDropDown && (
+                  <motion.div
+                    variants={notificationVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute top-12 -right-2 lg:right-0 w-72 max-h-80 bg-white dark:bg-gray-800 flex flex-col rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50"
+                  >
+                    <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50">
+                      <h2 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <RiMessage2Line className="text-base" />
+                        Recent Notifications
+                      </h2>
                     </div>
-                  ) : (
-                    "Logout"
-                  )}
-                </li>
-              </div>
+                    <ul className="overflow-y-auto demo flex flex-col">
+                      {notification.map((noti, idx) => (
+                        <motion.li
+                          key={idx}
+                          custom={idx}
+                          variants={menuItemVariants}
+                          initial="hidden"
+                          animate="visible"
+                          className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer"
+                        >
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            {noti.title}
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                            {noti.body}
+                          </p>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* User Profile */}
+            <div className="relative">
+              <motion.div
+                onClick={() => {
+                  setIsProfileDrowdown(!isProfileDropdown);
+                  setNotificationDropDown(false);
+                }}
+                className="flex items-center lg:pl-4 lg:gap-3 gap-2 border-l border-slate-200 dark:border-slate-700 cursor-pointer"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <motion.div className="w-8 h-8 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold text-sm border-2 border-blue-200 dark:border-blue-800">
+                  {user.currentUser?.Name?.[0]?.toUpperCase() || "U"}
+                </motion.div>
+                <div className="hidden lg:flex dark:text-white font-semibold lg:gap-2 items-center text-sm">
+                  <p>{user.currentUser?.Name || "User"}</p>
+                  <motion.div animate={{ rotate: isProfileDropdown ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <FaAngleDown className="text-sm" />
+                  </motion.div>
+                </div>
+              </motion.div>
+
+              <AnimatePresence>
+                {isProfileDropdown && (
+                  <motion.div
+                    variants={profileVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute top-14 -right-4 lg:right-0 w-56 bg-white dark:bg-gray-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden z-50"
+                  >
+                    <motion.button
+                      onClick={handleLogout}
+                      className="w-full px-4 py-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-sm font-semibold text-left flex items-center gap-2"
+                      whileHover={{ backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+                    >
+                      {loggingOut ? (
+                        <div className="flex items-center gap-2">
+                          <motion.div
+                            className="w-3 h-3 border-2 border-red-300 border-t-red-600 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          <span>Logging Out...</span>
+                        </div>
+                      ) : (
+                        "Logout"
+                      )}
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

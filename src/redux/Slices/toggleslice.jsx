@@ -5,17 +5,16 @@ const toggleSlice = createSlice({
   initialState: true,
   reducers: {
     sidenavtoggle: (state) => {
-      console.log("hi")
-      return state = !state
+      return !state;
     },
     opensidenav: () => {
-      return false;
+      return true;
     },
     closesidenav: () => {
-      return true;
+      return false;
     },
   },
 });
 
-export const { sidenavtoggle,opensidenav,closesidenav } = toggleSlice.actions;
+export const { sidenavtoggle, opensidenav, closesidenav } = toggleSlice.actions;
 export default toggleSlice.reducer;
