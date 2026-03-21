@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+.demo::-webkit-scrollbar {
+  display: none;
+}
+* {
+  font-family: "Roboto", sans-serif;
+}
+.active {
+  background-color: rgba(252, 247, 255, 0.16);
+  width: 100%;
+  color: white;
+}
+.Sactive {
+  background-color: red;
+  border-color: rgb(31, 29, 29);
+}
