@@ -8,10 +8,4 @@ export default defineConfig({
   tailwindcss(),
  
   ],
-    base: "/",
-  server: {
-    allowedHosts: [
-      'miraculously-interadditive-kortney.ngrok-free.dev'
-    ]
-  }
 })
